@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Vault Noir | Private Notes</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <script src="https://unpkg.com/feather-icons"></script>
+    <script src="script.js"></script>
+</head>
+<body class="bg-noir-900 min-h-screen text-white">
+    <div class="max-w-md mx-auto h-screen flex flex-col" style="background-color: #0a0a0a;">
+        <!-- Header -->
+        <div class="pt-4 px-4 flex items-center justify-between border-b border-gray-800 pb-4">
+            <a href="home.html" class="flex items-center">
+                <i data-feather="chevron-left" class="w-6 h-6"></i>
+            </a>
+            <h1 class="text-lg font-medium">Private Notes</h1>
+            <div class="w-6"></div> <!-- Spacer for alignment -->
+        </div>
+
+        <!-- Notes Content -->
+        <div class="flex-1 overflow-auto p-4">
+            <div id="notes-list" class="space-y-3">
+                <!-- Notes will be loaded here -->
+            </div>
+
+            <div class="mt-4">
+                <button onclick="createNewNote()" 
+                    class="w-full py-3 bg-noir-800 rounded-lg flex items-center justify-center gap-2">
+                    <i data-feather="plus" class="w-5 h-5"></i>
+                    New Note
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Note Editor Modal -->
+    <div id="note-editor" class="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center hidden">
+        <div class="bg-noir-800 rounded-xl p-6 w-full max-w-md mx-4 max-h-[80vh] flex flex-col">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-lg font-medium" id="note-title">New Note</h2>
+                <button onclick="closeEditor()">
+                    <i data-feather="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            
+            <input type="text" id="note-title-input" placeholder="Note title" 
+                class="w-full px-4 py-2 mb-4 bg-noir-900 border border-gray-700 rounded-lg">
+            
+            <textarea id="note-content" placeholder="Write your private thoughts here..." 
+                class="flex-1 w-full px-4 py-2 bg-noir-900 border border-gray-700 rounded-lg"></textarea>
+            
+            <div class="flex justify-between mt-4">
+                <button onclick="deleteCurrentNote()" id="delete-btn" class="px-4 py-2 bg-red-900 rounded-lg hidden">
+                    Delete
+                </button>
+                <button onclick="saveNote()" class="ml-auto px-6 py-2 bg-white text-noir-900 font-medium rounded-lg">
+                    Save
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        feather.replace();
+        checkAuth();
+
+        let currentNoteId = null;
+        const noteEditor = document.getElementById('note-editor');
+        const notesList = document.getElementById('notes-list');
+
+        // Load all notes
+        function loadNotes() {
+            const notes = storage.getNotes();
+            notesList.innerHTML = '';
+
+            if (notes.length === 0) {
+                notesList.innerHTML = '<p class="text-center text-gray-500 py-8">No notes yet. Create your first one!</p>';
+                return;
+            }
+
+            notes.forEach((note, index) => {
+                const noteElement = document.createElement('div');
+                noteElement.className = 'p-4 bg-noir-800 rounded-lg cursor-pointer';
+                noteElement.innerHTML = `
+                    <h3 class="font-medium mb-1">${note.title || 'Untitled Note'}</h3>
+                    <p class="text-gray-400 text-sm truncate">${note.content.substring(0, 60)}${note.content.length > 60 ? '...' : ''}</p>
+                `;
+                noteElement.addEventListener('click', () => openNoteEditor(index));
+                notesList.appendChild(noteElement);
+            });
+        }
+
+        // Create new note
+        function createNewNote() {
+            currentNoteId = null;
+            document.getElementById('note-title').textContent = 'New Note';
+            document.getElementById('note-title-input').value = '';
+            document.getElementById('note-content').value = '';
+            document.getElementById('delete-btn').classList.add('hidden');
+            noteEditor.classList.remove('hidden');
+        }
+
+        // Open note editor
+        function openNoteEditor(index) {
+            const notes = storage.getNotes();
+            const note = notes[index];
+            currentNoteId = index;
+
+            document.getElementById('note-title').textContent = 'Edit Note';
+            document.getElementById('note-title-input').value = note.title || '';
+            document.getElementById('note-content').value = note.content;
+            document.getElementById('delete-btn').classList.remove('hidden');
+            noteEditor.classList.remove('hidden');
+        }
+
+        // Close editor
+        function closeEditor() {
+            noteEditor.classList.add('hidden');
+        }
+
+        // Save note
+        function saveNote() {
+            const title = document.getElementById('note-title-input').value;
+            const content = document.getElementById('note-content').value;
+            
+            const notes = storage.getNotes();
+            
+            if (currentNoteId === null) {
+                // New note
+                notes.push({ title, content });
+            } else {
+                // Update existing note
+                notes[currentNoteId] = { title, content };
+            }
+            
+            storage.saveNotes(notes);
+            closeEditor();
+            loadNotes();
+        }
+
+        // Delete current note
+        function deleteCurrentNote() {
+            if (currentNoteId === null) return;
+            
+            const notes = storage.getNotes();
+            notes.splice(currentNoteId, 1);
+            storage.saveNotes(notes);
+            
+            closeEditor();
+            loadNotes();
+        }
+
+        // Initial load
+        loadNotes();
+    </script>
+</body>
+  </html> 
