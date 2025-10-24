@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Vault Noir | Private Browser</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <script src="https://unpkg.com/feather-icons"></script>
+    <script src="script.js"></script>
+</head>
+<body class="bg-noir-900 min-h-screen text-white">
+    <div class="max-w-md mx-auto h-screen flex flex-col" style="background-color: #0a0a0a;">
+        <!-- Header -->
+        <div class="pt-4 px-4 flex items-center justify-between border-b border-gray-800 pb-4">
+            <a href="home.html" class="flex items-center">
+                <i data-feather="chevron-left" class="w-6 h-6"></i>
+            </a>
+            <h1 class="text-lg font-medium">Private Browser</h1>
+            <div class="w-6"></div> <!-- Spacer for alignment -->
+        </div>
+
+        <!-- Browser Controls -->
+        <div class="p-4 border-b border-gray-800">
+            <div class="flex gap-2">
+                <input type="text" id="url-input" placeholder="Enter website URL" 
+                    class="flex-1 px-4 py-2 bg-noir-900 border border-gray-700 rounded-lg">
+                <button onclick="navigateToUrl()" class="px-4 py-2 bg-noir-800 rounded-lg">
+                    <i data-feather="arrow-right" class="w-5 h-5"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Browser Content -->
+        <div class="flex-1 overflow-hidden">
+            <iframe id="browser-frame" class="w-full h-full" frameborder="0" sandbox="allow-same-origin allow-scripts allow-popups allow-forms"></iframe>
+        </div>
+    </div>
+
+    <script>
+        feather.replace();
+        checkAuth();
+
+        const urlInput = document.getElementById('url-input');
+        const browserFrame = document.getElementById('browser-frame');
+
+        function navigateToUrl() {
+            let url = urlInput.value.trim();
+            
+            if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                url = 'https://' + url;
+            }
+            
+            try {
+                browserFrame.src = url;
+            } catch (e) {
+                console.error('Error navigating to URL:', e);
+            }
+        }
+
+        // Handle Enter key in URL input
+        urlInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                navigateToUrl();
+            }
+        });
+
+        // Update URL when iframe navigates
+        browserFrame.addEventListener('load', function() {
+            try {
+                if (browserFrame.contentWindow.location.href !== 'about:blank') {
+                    urlInput.value = browserFrame.contentWindow.location.href;
+                }
+            } catch (e) {
+                // Cross-origin security exception
+            }
+        });
+    </script>
+</body>
+</html> 
