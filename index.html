@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Vault Noir | Login</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <script src="https://unpkg.com/feather-icons"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        noir: {
+                            900: '#0a0a0a',
+                            800: '#1a1a1a',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-noir-900 min-h-screen flex items-center justify-center text-white">
+    <div class="w-full max-w-md p-8 bg-noir-800 rounded-xl shadow-2xl">
+        <div class="text-center mb-8">
+            <div class="flex justify-center mb-4">
+                <i data-feather="lock" class="w-16 h-16"></i>
+            </div>
+            <h1 class="text-3xl font-bold mb-2">Digital Vault Noir</h1>
+            <p class="text-gray-400">Your private digital space</p>
+        </div>
+        
+        <form id="loginForm" class="space-y-6">
+            <div>
+                <label for="username" class="block text-sm font-medium mb-1">Username</label>
+                <input type="text" id="username" required 
+                    class="w-full px-4 py-2 bg-noir-900 border border-gray-700 rounded-lg focus:ring-2 focus:ring-white focus:border-transparent">
+            </div>
+            
+            <div>
+                <label for="pin" class="block text-sm font-medium mb-1">4-digit PIN</label>
+                <input type="password" id="pin" inputmode="numeric" pattern="\d{4}" maxlength="4" required
+                    class="w-full px-4 py-2 bg-noir-900 border border-gray-700 rounded-lg focus:ring-2 focus:ring-white focus:border-transparent">
+            </div>
+            
+            <button type="submit" 
+                class="w-full py-2 px-4 bg-white text-noir-900 font-semibold rounded-lg hover:bg-gray-200 transition duration-200 flex items-center justify-center gap-2">
+                <i data-feather="log-in" class="w-4 h-4"></i>
+                Unlock Vault
+            </button>
+        </form>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        feather.replace();
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const pin = document.getElementById('pin').value;
+            
+            if (username && pin.length === 4) {
+                localStorage.setItem('dv_username', username);
+                localStorage.setItem('dv_pin', pin);
+                window.location.href = 'home.html';
+            }
+        });
+    </script>
+<script src="https://huggingface.co/deepsite/deepsite-badge.js"></script>
+</body>
+</html> 
